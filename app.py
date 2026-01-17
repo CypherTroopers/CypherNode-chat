@@ -3,12 +3,15 @@ import os
 import re
 import time
 import yaml
+import shutil
+import subprocess
 from typing import Any, Dict, Optional, List, Tuple
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
+import psutil
 from web3 import Web3
 
 from cypher_rpc import CypherRPC
@@ -163,6 +166,26 @@ def _get_repo_context() -> Dict[str, Any]:
     return {"paths": paths, "previews": previews}
 
 
+def _get_gpu_percent() -> Optional[float]:
+    if not shutil.which("nvidia-smi"):
+        return None
+
+    try:
+        output = subprocess.check_output(
+            ["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"],
+            text=True,
+            timeout=1.5,
+        )
+        line = output.strip().splitlines()[0]
+        return float(line)
+    except Exception:
+        return None
+
+
+def _get_cpu_percent() -> float:
+    return float(psutil.cpu_percent(interval=None))
+
+
 async def _tool_status() -> Dict[str, Any]:
     assert _rpc is not None
     if not _rpc.is_connected():
@@ -254,6 +277,12 @@ async def index():
         return f.read()
 
 
+@app.get("/mining-power", response_class=HTMLResponse)
+async def mining_power():
+    with open("web/mining.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
 @app.get("/api/watchlist")
 async def get_watchlist():
     return load_json(WATCHLIST_PATH, {"addresses": []})
@@ -280,6 +309,21 @@ async def watch_del(payload: Dict[str, Any]):
 @app.get("/api/status")
 async def status():
     return _to_jsonable(await _tool_status())
+
+
+@app.get("/api/mining-power")
+async def mining_power_status():
+    cpu_percent = _get_cpu_percent()
+    gpu_percent = _get_gpu_percent()
+    mode = "GPU" if gpu_percent is not None else "CPU"
+    percent = gpu_percent if gpu_percent is not None else cpu_percent
+    return {
+        "cpu_percent": cpu_percent,
+        "gpu_percent": gpu_percent,
+        "mode": mode,
+        "percent": percent,
+        "timestamp": time.time(),
+    }
 
 
 @app.post("/api/ask")
