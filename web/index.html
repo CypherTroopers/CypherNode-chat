@@ -1,35 +1,400 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ChainChat Node</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CypherNode Chat</title>
+    <style>
+    :root {
+      color-scheme: dark;
+      --bg: #05070f;
+      --panel: rgba(12, 17, 32, 0.85);
+      --panel-strong: rgba(17, 24, 44, 0.96);
+      --accent: #6fffe9;
+      --accent-strong: #3b82f6;
+      --text: #e6edf6;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.2);
+      --glow: rgba(111, 255, 233, 0.3);
+      --warning: #f97316;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top, rgba(61, 130, 246, 0.12), transparent 45%),
+                  radial-gradient(circle at 30% 20%, rgba(111, 255, 233, 0.2), transparent 40%),
+                  var(--bg);
+      color: var(--text);
+      padding: 32px 20px 48px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(111, 255, 233, 0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(111, 255, 233, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(111, 255, 233, 0.1), rgba(59, 130, 246, 0.08));
+      box-shadow: 0 0 35px rgba(59, 130, 246, 0.25);
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 640px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 0 20px rgba(8, 12, 28, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      border: 1px solid rgba(111, 255, 233, 0.12);
+      pointer-events: none;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid rgba(111, 255, 233, 0.35);
+      background: linear-gradient(135deg, rgba(111, 255, 233, 0.12), rgba(59, 130, 246, 0.2));
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 0 16px rgba(111, 255, 233, 0.2);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(111, 255, 233, 0.35);
+    }
+
+    button.secondary {
+      background: rgba(15, 23, 42, 0.6);
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(10, 15, 29, 0.8);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(111, 255, 233, 0.25);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--panel-strong);
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.18);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+
+    .badge.warning {
+      background: rgba(249, 115, 22, 0.2);
+      border-color: rgba(249, 115, 22, 0.45);
+      color: #fed7aa;
+    }
+
+    .watchlist {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 40px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(111, 255, 233, 0.08);
+      border: 1px solid rgba(111, 255, 233, 0.25);
+      font-size: 13px;
+    }
+
+    .pill button {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(59, 130, 246, 0.2);
+      box-shadow: none;
+      font-size: 11px;
+    }
+
+    .output {
+      background: rgba(5, 7, 15, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      color: #cbd5f5;
+      max-height: 180px;
+      overflow: auto;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h2>ChainChat Node (Cypherium Local AI Agent)</h2>
+  <div class="container">
+    <header>
+      <span class="eyebrow">AI × Blockchain Control Plane</span>
+      <div class="title">ChainChat Node</div>
+      <p class="subtitle">
+        A futuristic command layer that merges Cypherium node telemetry with AI-assisted insights.
+        Monitor consensus health, manage watchlists, and query your node in natural language.
+      </p>
+    </header>
 
-  <section>
-    <h3>Node Status</h3>
-    <button onclick="loadStatus()">Refresh</button>
-    <pre id="status"></pre>
-  </section>
+    <main class="grid">
+      <section class="panel" aria-labelledby="status-title">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" id="status-title">Node Status</div>
+            <div class="panel-subtitle">Live metrics for chain health and sync.</div>
+          </div>
+          <div class="actions">
+            <button id="status-refresh">Sync Now</button>
+          </div>
+        </div>
+        <div class="status-grid">
+          <div class="stat-card">
+            <span class="stat-label">Connection</span>
+            <span class="stat-value" id="status-connection">--</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Block Height</span>
+            <span class="stat-value" id="status-block">--</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Peers</span>
+            <span class="stat-value" id="status-peers">--</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Sync State</span>
+            <span class="stat-value" id="status-sync">--</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Tx Pool</span>
+            <span class="stat-value" id="status-txpool">--</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Last Refresh</span>
+            <span class="stat-value" id="status-refresh-time">--</span>
+          </div>
+        </div>
+        <details>
+          <summary class="badge">Raw status payload</summary>
+          <pre class="output" id="status"></pre>
+        </details>
+      </section>
 
-  <section>
-    <h3>Wallet Watchlist</h3>
-    <input id="addr" placeholder="0x..." style="width:420px"/>
-    <button onclick="addAddr()">Add</button>
-    <button onclick="loadWatchlist()">Reload</button>
-    <pre id="watchlist"></pre>
-  </section>
+      <section class="panel" aria-labelledby="watchlist-title">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" id="watchlist-title">Wallet Watchlist</div>
+            <div class="panel-subtitle">Track high-signal addresses with alert coverage.</div>
+          </div>
+          <div class="badge" id="watchlist-count">0 tracked</div>
+        </div>
+        <div class="watchlist">
+          <input id="addr" placeholder="0x... address to track" />
+          <div class="actions">
+            <button id="watchlist-add">Add Address</button>
+            <button class="secondary" id="watchlist-reload">Reload</button>
+          </div>
+          <div class="pill-list" id="watchlist-list"></div>
+          <details>
+            <summary class="badge">Raw watchlist payload</summary>
+            <pre class="output" id="watchlist"></pre>
+          </details>
+        </div>
+      </section>
 
-  <section>
-    <h3>AI Chat</h3>
-    <input id="q" placeholder="ask about status/peers/sync..." style="width:520px"/>
-    <button onclick="ask()">Send</button>
-    <pre id="answer"></pre>
-    <pre id="tool"></pre>
-  </section>
+      <section class="panel" aria-labelledby="chat-title">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" id="chat-title">AI Operations Console</div>
+            <div class="panel-subtitle">Ask questions about sync, peers, or on-chain data.</div>
+          </div>
+          <div class="badge">LLM-assisted</div>
+        </div>
+        <textarea id="q" placeholder="Ask about status, peers, sync, transactions..."></textarea>
+        <div class="actions">
+          <button id="chat-send">Send Query</button>
+          <button class="secondary" id="chat-clear">Clear</button>
+        </div>
+        <div class="split">
+          <div>
+            <div class="panel-subtitle">Answer</div>
+            <pre class="output" id="answer"></pre>
+          </div>
+          <div>
+            <div class="panel-subtitle">Tool Context</div>
+            <pre class="output" id="tool"></pre>
+          </div>
+        </div>
+      </section>
+    </main>
 
-  <script src="/static/app.js"></script>
-</body>
-</html>
+    <div class="footer-note">
+      Cypherium telemetry is rendered locally. AI responses reflect real-time node context.
+    </div>
+  </div>
