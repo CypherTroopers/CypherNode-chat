@@ -197,6 +197,7 @@ async def _tool_status() -> Dict[str, Any]:
         "peer_count": _rpc.peer_count(),
         "syncing": _rpc.syncing(),
         "txpool": _rpc.txpool_status(),
+        "mining_status": _rpc.miner_status(),
     }
 
 
