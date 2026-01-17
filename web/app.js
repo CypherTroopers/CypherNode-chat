@@ -1,74 +1,172 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ChainChat Node</title>
-</head>
-<body>
-  <h2>ChainChat Node (Cypherium Local AI Agent)</h2>
+const statusEl = document.getElementById("status");
+const statusConnection = document.getElementById("status-connection");
+const statusBlock = document.getElementById("status-block");
+const statusPeers = document.getElementById("status-peers");
+const statusSync = document.getElementById("status-sync");
+const statusTxPool = document.getElementById("status-txpool");
+const statusRefreshTime = document.getElementById("status-refresh-time");
 
-  <section>
-    <h3>Node Status</h3>
-    <button onclick="loadStatus()">Refresh</button>
-    <pre id="status"></pre>
-  </section>
+const watchlistEl = document.getElementById("watchlist");
+const watchlistList = document.getElementById("watchlist-list");
+const watchlistCount = document.getElementById("watchlist-count");
 
-  <section>
-    <h3>Wallet Watchlist</h3>
-    <input id="addr" placeholder="0x..." style="width:420px"/>
-    <button onclick="addAddr()">Add</button>
-    <button onclick="loadWatchlist()">Reload</button>
-    <pre id="watchlist"></pre>
-  </section>
+const answerEl = document.getElementById("answer");
+const toolEl = document.getElementById("tool");
 
-  <section>
-    <h3>AI Chat</h3>
-    <input id="q" placeholder="ask about status/peers/sync..." style="width:520px"/>
-    <button onclick="ask()">Send</button>
-    <pre id="answer"></pre>
-    <pre id="tool"></pre>
-  </section>
+const addrInput = document.getElementById("addr");
+const questionInput = document.getElementById("q");
 
-  <script src="/static/app.js"></script>
-</body>
-</html>
-root@vmi2680348:~/go/src/github.com/cypherium/cypher/chainchat-agent/web# lsapp.js  index.html
-root@vmi2680348:~/go/src/github.com/cypherium/cypher/chainchat-agent/web# cat app.js
+const formatValue = (value) => {
+  if (value === null || value === undefined) {
+    return "--";
+  }
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+  return String(value);
+};
+
+const setStatusValue = (element, value) => {
+  if (!element) return;
+  element.textContent = formatValue(value);
+};
+
 async function loadStatus() {
-  const r = await fetch("/api/status");
-  const j = await r.json();
-  document.getElementById("status").textContent = JSON.stringify(j, null, 2);
+  if (statusEl) {
+    statusEl.textContent = "Loading status...";
+  }
+
+  try {
+    const response = await fetch("/api/status");
+    const data = await response.json();
+    statusEl.textContent = JSON.stringify(data, null, 2);
+
+    const connected = data.connected ? "Connected" : "Offline";
+    setStatusValue(statusConnection, connected);
+    setStatusValue(statusBlock, data.block_number ?? "--");
+    setStatusValue(statusPeers, data.peer_count ?? "--");
+    setStatusValue(statusSync, data.syncing ?? "--");
+    setStatusValue(statusTxPool, data.txpool ?? "--");
+    setStatusValue(statusRefreshTime, new Date().toLocaleTimeString());
+  } catch (error) {
+    statusEl.textContent = `Error: ${error}`;
+    setStatusValue(statusConnection, "Offline");
+    setStatusValue(statusRefreshTime, new Date().toLocaleTimeString());
+  }
 }
+const renderWatchlist = (addresses) => {
+  const safeList = Array.isArray(addresses) ? addresses : [];
+  watchlistEl.textContent = JSON.stringify({ addresses: safeList }, null, 2);
+  watchlistList.innerHTML = "";
+
+  safeList.forEach((address) => {
+    const pill = document.createElement("div");
+    pill.className = "pill";
+
+    const label = document.createElement("span");
+    label.textContent = address;
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.textContent = "Remove";
+    removeButton.addEventListener("click", () => removeAddr(address));
+
+    pill.append(label, removeButton);
+    watchlistList.appendChild(pill);
+  });
+
+  watchlistCount.textContent = `${safeList.length} tracked`;
+};
+
 
 async function loadWatchlist() {
-  const r = await fetch("/api/watchlist");
-  const j = await r.json();
-  document.getElementById("watchlist").textContent = JSON.stringify(j, null, 2);
-}
+  watchlistEl.textContent = "Loading watchlist...";
+
+  try {
+    const response = await fetch("/api/watchlist");
+    const data = await response.json();
+    renderWatchlist(data.addresses || []);
+  } catch (error) {
+    watchlistEl.textContent = `Error: ${error}`;
+  }
+    }
 
 async function addAddr() {
-  const addr = document.getElementById("addr").value.trim();
-  const r = await fetch("/api/watchlist/add", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({address: addr})
-  });
-  const j = await r.json();
-  document.getElementById("watchlist").textContent = JSON.stringify(j, null, 2);
+  const addr = addrInput.value.trim();
+  if (!addr) {
+    addrInput.focus();
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/watchlist/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address: addr }),
+    });
+    const data = await response.json();
+    renderWatchlist(data.addresses || []);
+    addrInput.value = "";
+  } catch (error) {
+    watchlistEl.textContent = `Error: ${error}`;
+  }
+}
+
+async function removeAddr(address) {
+  try {
+    const response = await fetch("/api/watchlist/del", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address }),
+    });
+    const data = await response.json();
+    renderWatchlist(data.addresses || []);
+  } catch (error) {
+    watchlistEl.textContent = `Error: ${error}`;
+  }
 }
 
 async function ask() {
-  const q = document.getElementById("q").value.trim();
-  const r = await fetch("/api/ask", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({q})
-  });
-  const j = await r.json();
-  document.getElementById("answer").textContent = j.answer || "";
-  document.getElementById("tool").textContent = JSON.stringify(j.tool, null, 2);
+  const q = questionInput.value.trim();
+  if (!q) {
+    questionInput.focus();
+    return;
+  }
+
+  answerEl.textContent = "Thinking...";
+  toolEl.textContent = "";
+
+  try {
+    const response = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q }),
+    });
+    const data = await response.json();
+    answerEl.textContent = data.answer || "";
+    toolEl.textContent = JSON.stringify(data.tool, null, 2);
+  } catch (error) {
+    answerEl.textContent = `Error: ${error}`;
+  }
 }
+const clearChat = () => {
+  questionInput.value = "";
+  answerEl.textContent = "";
+  toolEl.textContent = "";
+};
+
+document.getElementById("status-refresh").addEventListener("click", loadStatus);
+document.getElementById("watchlist-reload").addEventListener("click", loadWatchlist);
+document.getElementById("watchlist-add").addEventListener("click", addAddr);
+document.getElementById("chat-send").addEventListener("click", ask);
+document.getElementById("chat-clear").addEventListener("click", clearChat);
+
+questionInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    ask();
+  }
+});
 
 loadStatus();
 loadWatchlist();
