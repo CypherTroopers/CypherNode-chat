@@ -26,12 +26,11 @@ STATE_PATH = "state.json"
 
 # ====== file read policy ======
 CYPHER_REPO_BASE = "/root/go/src/github.com/cypherium/cypher"
-DENY_PATTERNS = ["keystore"]
+DENY_PATTERNS = ["keystore", "nodekey", ".env", "secret", "private", "mnemonic", "jwt", "token"]
 
 ALLOW_EXTS = {
     ".json", ".yaml", ".yml", ".toml", ".ini", ".conf",
     ".sh", ".service", ".md", ".txt",
-    ".env",
     ".go",
 }
 
