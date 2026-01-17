@@ -1,0 +1,33 @@
+server:
+  host: "0.0.0.0"
+  port: 9600
+
+cypher:
+  ipc_path: "/root/go/src/github.com/cypherium/cypher/chaindbname/cypher.ipc"
+  poll_interval_sec: 2
+
+wallet_watch:
+  min_cph: 100.0
+  notify_incoming: true
+  notify_outgoing: true
+  native_only: true
+
+pm2:
+  app_name: "cypher-node"
+  logs_dir: "/root/.pm2/logs"
+  watch_out: true
+  watch_err: true
+
+telegram:
+  enabled: true
+  bot_token: ""
+  chat_id: ""
+
+ai:
+  provider: "ollama"
+  ollama_base_url: "http://127.0.0.1:11434"
+  model: "qwen2.5:3b"
+  system_prompt: |
+    You are a local Cypherium node assistant.
+    You can use tools: node_status, peers, txpool_status, latest_block, get_tx, get_balance.
+    Prefer tool calls for factual answers. Do not invent chain data.
