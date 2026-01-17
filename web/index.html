@@ -112,7 +112,36 @@
       pointer-events: none;
     }
 
-    .panel-header {
+        .panel-link {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .panel-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 24px rgba(111, 255, 233, 0.35);
+    }
+
+    .panel-link:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .mining-value {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .mining-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+      .panel-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -390,6 +419,21 @@
             <div class="panel-subtitle">Tool Context</div>
             <pre class="output" id="tool"></pre>
           </div>
+        </div>
+      </section>
+    
+      <section class="panel panel-link" id="mining-power-panel" role="button" tabindex="0" aria-labelledby="mining-title">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" id="mining-title">AI Mining Power</div>
+            <div class="panel-subtitle">Local CPU/GPU usage feed in real time.</div>
+          </div>
+          <div class="badge" id="mining-mode">CPU</div>
+        </div>
+        <div class="mining-value" id="mining-percent">--%</div>
+        <div class="mining-meta">
+          <span id="mining-source">Awaiting telemetry...</span>
+          <span id="mining-updated">--:--:--</span>
         </div>
       </section>
     </main>
