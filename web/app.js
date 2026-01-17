@@ -12,6 +12,11 @@ const watchlistCount = document.getElementById("watchlist-count");
 
 const answerEl = document.getElementById("answer");
 const toolEl = document.getElementById("tool");
+const miningPanel = document.getElementById("mining-power-panel");
+const miningMode = document.getElementById("mining-mode");
+const miningPercent = document.getElementById("mining-percent");
+const miningSource = document.getElementById("mining-source");
+const miningUpdated = document.getElementById("mining-updated");
 
 const addrInput = document.getElementById("addr");
 const questionInput = document.getElementById("q");
@@ -30,6 +35,32 @@ const setStatusValue = (element, value) => {
   if (!element) return;
   element.textContent = formatValue(value);
 };
+
+const setMiningValue = (element, value) => {
+  if (!element) return;
+  element.textContent = value;
+};
+
+async function loadMiningPower() {
+  try {
+    const response = await fetch("/api/mining-power");
+    const data = await response.json();
+    const mode = data.mode || "CPU";
+    const percent = Number(data.percent);
+    const value = Number.isNaN(percent) ? "--" : percent.toFixed(1);
+
+    setMiningValue(miningMode, mode);
+    setMiningValue(miningPercent, `${value}%`);
+    setMiningValue(
+      miningSource,
+      mode === "GPU" ? "GPU acceleration detected." : "CPU telemetry active.",
+    );
+    setMiningValue(miningUpdated, new Date().toLocaleTimeString());
+  } catch (error) {
+    setMiningValue(miningSource, "Telemetry unavailable.");
+    setMiningValue(miningUpdated, new Date().toLocaleTimeString());
+  }
+}
 
 async function loadStatus() {
   if (statusEl) {
@@ -161,6 +192,19 @@ document.getElementById("watchlist-add").addEventListener("click", addAddr);
 document.getElementById("chat-send").addEventListener("click", ask);
 document.getElementById("chat-clear").addEventListener("click", clearChat);
 
+if (miningPanel) {
+  miningPanel.addEventListener("click", () => {
+    window.location.href = "/mining-power";
+  });
+
+  miningPanel.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      window.location.href = "/mining-power";
+    }
+  });
+}
+
 questionInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault();
@@ -170,3 +214,5 @@ questionInput.addEventListener("keydown", (event) => {
 
 loadStatus();
 loadWatchlist();
+loadMiningPower();
+setInterval(loadMiningPower, 2000);
