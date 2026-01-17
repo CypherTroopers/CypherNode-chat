@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Mining Power</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #05070f;
+      --panel: rgba(12, 17, 32, 0.85);
+      --panel-strong: rgba(17, 24, 44, 0.96);
+      --accent: #6fffe9;
+      --accent-strong: #3b82f6;
+      --text: #e6edf6;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top, rgba(61, 130, 246, 0.12), transparent 45%),
+                  radial-gradient(circle at 30% 20%, rgba(111, 255, 233, 0.2), transparent 40%),
+                  var(--bg);
+      color: var(--text);
+      padding: 32px 20px 48px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 24px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(111, 255, 233, 0.1), rgba(59, 130, 246, 0.08));
+    }
+
+    header a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .title {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      background: var(--panel);
+      box-shadow: 0 0 20px rgba(8, 12, 28, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--panel-strong);
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    canvas {
+      width: 100%;
+      max-height: 360px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <div class="title">AI Mining Power</div>
+        <div class="subtitle">Real-time CPU/GPU utilization trends for this node.</div>
+      </div>
+      <a href="/">← Back to dashboard</a>
+    </header>
+
+    <section class="panel">
+      <div class="status-row">
+        <div class="stat-card">
+          <span class="stat-label">Active Source</span>
+          <span class="stat-value" id="mining-mode">--</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Current Usage</span>
+          <span class="stat-value" id="mining-current">--%</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Last Update</span>
+          <span class="stat-value" id="mining-updated">--:--:--</span>
+        </div>
+      </div>
+      <canvas id="mining-chart" height="180"></canvas>
+      <div class="note" id="mining-note">Collecting telemetry...</div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="/static/mining.js"></script>
+</body>
+</html>
