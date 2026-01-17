@@ -3,6 +3,7 @@ const statusConnection = document.getElementById("status-connection");
 const statusBlock = document.getElementById("status-block");
 const statusPeers = document.getElementById("status-peers");
 const statusSync = document.getElementById("status-sync");
+const statusMiningStatus = document.getElementById("status-mining-status");
 const statusTxPool = document.getElementById("status-txpool");
 const statusRefreshTime = document.getElementById("status-refresh-time");
 
@@ -77,11 +78,13 @@ async function loadStatus() {
     setStatusValue(statusBlock, data.block_number ?? "--");
     setStatusValue(statusPeers, data.peer_count ?? "--");
     setStatusValue(statusSync, data.syncing ?? "--");
+    setStatusValue(statusMiningStatus, data.mining_status ?? "--");
     setStatusValue(statusTxPool, data.txpool ?? "--");
     setStatusValue(statusRefreshTime, new Date().toLocaleTimeString());
   } catch (error) {
     statusEl.textContent = `Error: ${error}`;
     setStatusValue(statusConnection, "Offline");
+    setStatusValue(statusMiningStatus, "--");
     setStatusValue(statusRefreshTime, new Date().toLocaleTimeString());
   }
 }
