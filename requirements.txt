@@ -1,0 +1,7 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+web3==6.20.2
+pydantic==2.8.2
+pyyaml==6.0.2
+python-telegram-bot==21.6
+aiofiles==24.1.0
