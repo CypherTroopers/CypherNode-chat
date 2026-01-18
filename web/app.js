@@ -19,8 +19,16 @@ const miningPercent = document.getElementById("mining-percent");
 const miningSource = document.getElementById("mining-source");
 const miningUpdated = document.getElementById("mining-updated");
 
+const peerMapEl = document.getElementById("peer-map");
+const peerMapCount = document.getElementById("peer-map-count");
+const peerMapUpdated = document.getElementById("peer-map-updated");
+const peerMapGeoip = document.getElementById("peer-map-geoip");
+
 const addrInput = document.getElementById("addr");
 const questionInput = document.getElementById("q");
+
+let peerMap = null;
+let peerMarkers = null;
 
 const formatValue = (value) => {
   if (value === null || value === undefined) {
@@ -60,6 +68,86 @@ async function loadMiningPower() {
   } catch (error) {
     setMiningValue(miningSource, "Telemetry unavailable.");
     setMiningValue(miningUpdated, new Date().toLocaleTimeString());
+  }
+}
+
+const initPeerMap = () => {
+  if (!peerMapEl || !window.L) return;
+  peerMap = window.L.map(peerMapEl, { worldCopyJump: true, minZoom: 1 }).setView([20, 0], 2);
+  window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+  }).addTo(peerMap);
+  peerMarkers = window.L.layerGroup().addTo(peerMap);
+};
+
+const buildMarkerLabel = (entry) => {
+  const countries = Array.from(entry.countries).filter(Boolean).join(", ") || "Unknown";
+  const ips = entry.ips.slice(0, 6).join("<br/>");
+  const extraIps = entry.ips.length > 6 ? `<br/>+${entry.ips.length - 6} more` : "";
+  return `
+    <strong>${countries}</strong><br/>
+    ${entry.count} peer(s)<br/>
+    ${ips}${extraIps}
+  `;
+};
+
+async function loadPeerGeo() {
+  if (!peerMap || !peerMarkers) return;
+
+  try {
+    const response = await fetch("/api/peer-geo");
+    const data = await response.json();
+    const peers = Array.isArray(data.peers) ? data.peers : [];
+    const updated = data.updated_at ? new Date(data.updated_at * 1000) : null;
+
+    peerMapCount.textContent = `${data.ip_count ?? peers.length} peers`;
+    peerMapUpdated.textContent = `Last update: ${updated ? updated.toLocaleString() : "--"}`;
+    peerMapGeoip.textContent = `GeoIP: ${data.geoip_enabled ? "enabled" : "disabled"}`;
+
+    const grouped = new Map();
+    peers.forEach((peer) => {
+      const lat = Number(peer.latitude);
+      const lon = Number(peer.longitude);
+      if (Number.isNaN(lat) || Number.isNaN(lon)) return;
+      const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          lat,
+          lon,
+          count: 0,
+          countries: new Set(),
+          ips: [],
+        });
+      }
+      const entry = grouped.get(key);
+      entry.count += 1;
+      entry.countries.add(peer.country || peer.country_code);
+      if (peer.ip) entry.ips.push(peer.ip);
+    });
+
+    peerMarkers.clearLayers();
+    grouped.forEach((entry) => {
+      const radius = Math.min(18, 6 + entry.count * 2);
+      const marker = window.L.circleMarker([entry.lat, entry.lon], {
+        radius,
+        color: "#6fffe9",
+        weight: 2,
+        fillColor: "#3b82f6",
+        fillOpacity: 0.7,
+      });
+      marker.bindPopup(buildMarkerLabel(entry));
+      marker.addTo(peerMarkers);
+    });
+
+    if (grouped.size) {
+      const bounds = window.L.latLngBounds(
+        Array.from(grouped.values()).map((entry) => [entry.lat, entry.lon]),
+      );
+      peerMap.fitBounds(bounds.pad(0.4));
+    }
+  } catch (error) {
+    peerMapUpdated.textContent = "Last update: error";
+    peerMapGeoip.textContent = "GeoIP: unavailable";
   }
 }
 
@@ -218,4 +306,7 @@ questionInput.addEventListener("keydown", (event) => {
 loadStatus();
 loadWatchlist();
 loadMiningPower();
+initPeerMap();
+loadPeerGeo();
 setInterval(loadMiningPower, 2000);
+setInterval(loadPeerGeo, 180000);
