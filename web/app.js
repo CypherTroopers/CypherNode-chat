@@ -99,8 +99,9 @@ async function loadPeerGeo() {
 
     peerMapCount.textContent = `${data.ip_count ?? peers.length} peers`;
     peerMapUpdated.textContent = `Last update: ${updated ? updated.toLocaleString() : "--"}`;
-    peerMapGeoip.textContent = `GeoIP: ${data.geoip_enabled ? "enabled" : "disabled"}`;
-
+    const geoLabel = data.provider ? `GeoIP: ${data.provider}` : `GeoIP: ${data.geoip_enabled ? "enabled" : "disabled"}`;
+    peerMapGeoip.textContent = geoLabel;
+    
     const grouped = new Map();
     peers.forEach((peer) => {
       const lat = Number(peer.latitude);
