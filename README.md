@@ -27,7 +27,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 **Start Ollama & pull the model:**
 ```bash
-ollama serve
+sudo systemctl enable --now ollama
 ollama pull qwen2.5:3b
 ```
 
