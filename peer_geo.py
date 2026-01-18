@@ -16,6 +16,10 @@ except Exception:  # optional dependency
     geoip2 = None  # type: ignore
 
 
+IP_API_BATCH_URL = "http://ip-api.com/batch"  # batchはhttp
+IP_API_FIELDS = "status,message,country,countryCode,regionName,city,lat,lon,query"
+
+
 def _extract_ip(remote_address: Optional[str]) -> Optional[str]:
     if not remote_address or not isinstance(remote_address, str):
         return None
@@ -52,7 +56,6 @@ def _unique_sorted(items: Iterable[str]) -> List[str]:
 def _extract_peer_ips(peers: Any) -> List[str]:
     if not isinstance(peers, list):
         return []
-
     ips: List[str] = []
     for peer in peers:
         if not isinstance(peer, dict):
@@ -63,13 +66,13 @@ def _extract_peer_ips(peers: Any) -> List[str]:
         ip = _extract_ip(network.get("remoteAddress"))
         if ip:
             ips.append(ip)
-
     return _unique_sorted(ips)
 
 
 def _lookup_geo(reader: Optional[Any], ip: str) -> Dict[str, Any]:
     if reader is None:
-        return _lookup_geo_api(ip)
+        # batch利用時はここは使わないが、互換のため残す
+        return {"ip": ip}
 
     try:
         record = reader.city(ip)
@@ -87,30 +90,57 @@ def _lookup_geo(reader: Optional[Any], ip: str) -> Dict[str, Any]:
     }
 
 
-def _lookup_geo_api(ip: str) -> Dict[str, Any]:
-    url = f"https://ipapi.co/{ip}/json/"
-    request = Request(url, headers={"User-Agent": "CypherNode/peer-geo"})
+def _ip_api_batch(ips: List[str]) -> Dict[str, Dict[str, Any]]:
+    """
+    ip-api.com batch: POST JSON array
+    returns list of results in same order
+    """
+    if not ips:
+        return {}
+
+    payload = [{"query": ip, "fields": IP_API_FIELDS} for ip in ips]
+    body = json.dumps(payload).encode("utf-8")
+
+    req = Request(
+        IP_API_BATCH_URL,
+        data=body,
+        headers={
+            "User-Agent": "CypherNode/peer-geo",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
 
     try:
-        with urlopen(request, timeout=4) as response:
-            if response.status != 200:
-                return {"ip": ip}
-            payload = json.loads(response.read().decode("utf-8"))
+        with urlopen(req, timeout=15) as resp:
+            raw = resp.read().decode("utf-8", errors="replace")
+            data = json.loads(raw)
     except (URLError, ValueError, TimeoutError):
-        return {"ip": ip}
+        return {}
 
-    if not isinstance(payload, dict) or payload.get("error"):
-        return {"ip": ip}
+    if not isinstance(data, list):
+        return {}
 
-    return {
-        "ip": ip,
-        "country": payload.get("country_name"),
-        "country_code": payload.get("country_code"),
-        "region": payload.get("region"),
-        "city": payload.get("city"),
-        "latitude": payload.get("latitude"),
-        "longitude": payload.get("longitude"),
-    }
+    out: Dict[str, Dict[str, Any]] = {}
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        ip = item.get("query")
+        if not ip or not isinstance(ip, str):
+            continue
+        if item.get("status") != "success":
+            out[ip] = {"ip": ip}
+            continue
+        out[ip] = {
+            "ip": ip,
+            "country": item.get("country"),
+            "country_code": item.get("countryCode"),
+            "region": item.get("regionName"),
+            "city": item.get("city"),
+            "latitude": item.get("lat"),
+            "longitude": item.get("lon"),
+        }
+    return out
 
 
 def _load_geo_reader(db_path: str) -> Optional[Any]:
@@ -122,17 +152,29 @@ def _load_geo_reader(db_path: str) -> Optional[Any]:
         return None
 
 
-def _build_peer_geo_payload(
-    peers: Any, geo_reader: Optional[Any]
-) -> Dict[str, Any]:
+def _build_peer_geo_payload(peers: Any, geo_reader: Optional[Any]) -> Dict[str, Any]:
     ips = _extract_peer_ips(peers)
-    enriched = [_lookup_geo(geo_reader, ip) for ip in ips]
+
+    # 1) GeoLite2 DB があるならそれを使う（最速・最安定）
+    if geo_reader is not None:
+        enriched = [_lookup_geo(geo_reader, ip) for ip in ips]
+        return {
+            "updated_at": time.time(),
+            "ip_count": len(ips),
+            "peers": enriched,
+            "geoip_enabled": True,
+        }
+
+    # 2) なければ ip-api.com batch（キー不要、まとめて取得）
+    batch_map = _ip_api_batch(ips)
+    enriched = [batch_map.get(ip, {"ip": ip}) for ip in ips]
 
     return {
         "updated_at": time.time(),
         "ip_count": len(ips),
         "peers": enriched,
-        "geoip_enabled": geo_reader is not None,
+        "geoip_enabled": False,
+        "provider": "ip-api.com/batch",
     }
 
 
