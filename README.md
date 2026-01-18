@@ -13,6 +13,8 @@ If your directory structure is different, please update the paths below:
 
 * The current setup uses a lightweight model that can just barely run on CPU.
 If you have AI experience, you can customize it for your environment—switch to a different LLM, build a RAG pipeline to speed up search, or if you have a GPU, add LoRA and train your own LoRA to grow it into an AI that fits your style.
+* This tool is strictly for monitoring your own node.
+If you plan to make the page publicly accessible, please be mindful of security.
 
 ### 1) Clone the repo&install tools
 
