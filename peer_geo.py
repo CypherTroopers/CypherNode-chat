@@ -71,7 +71,6 @@ def _extract_peer_ips(peers: Any) -> List[str]:
 
 def _lookup_geo(reader: Optional[Any], ip: str) -> Dict[str, Any]:
     if reader is None:
-        # batch利用時はここは使わないが、互換のため残す
         return {"ip": ip}
 
     try:
@@ -155,7 +154,6 @@ def _load_geo_reader(db_path: str) -> Optional[Any]:
 def _build_peer_geo_payload(peers: Any, geo_reader: Optional[Any]) -> Dict[str, Any]:
     ips = _extract_peer_ips(peers)
 
-    # 1) GeoLite2 DB があるならそれを使う（最速・最安定）
     if geo_reader is not None:
         enriched = [_lookup_geo(geo_reader, ip) for ip in ips]
         return {
@@ -165,7 +163,6 @@ def _build_peer_geo_payload(peers: Any, geo_reader: Optional[Any]) -> Dict[str, 
             "geoip_enabled": True,
         }
 
-    # 2) なければ ip-api.com batch（キー不要、まとめて取得）
     batch_map = _ip_api_batch(ips)
     enriched = [batch_map.get(ip, {"ip": ip}) for ip in ips]
 
