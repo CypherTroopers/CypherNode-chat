@@ -9,7 +9,7 @@ from urllib.request import Request, urlopen
 from cypher_rpc import CypherRPC
 from storage import save_json
 
-IP_API_BATCH_URL = "http://ip-api.com/batch"  # batchはhttp
+IP_API_BATCH_URL = "http://ip-api.com/batch"
 IP_API_FIELDS = "status,message,country,countryCode,regionName,city,lat,lon,query"
 
 
