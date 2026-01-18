@@ -319,7 +319,7 @@ async def status():
 async def peer_geo():
     return load_json(
         _peer_geo_path,
-        {"updated_at": None, "ip_count": 0, "peers": [], "geoip_enabled": False},
+        {"updated_at": None, "ip_count": 0, "peers": [], "provider": "ip-api.com/batch"},
     )
 
 
