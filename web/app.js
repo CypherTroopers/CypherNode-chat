@@ -82,13 +82,11 @@ const initPeerMap = () => {
 
 const buildMarkerLabel = (entry) => {
   const countries = Array.from(entry.countries).filter(Boolean).join(", ") || "Unknown";
-  const ips = entry.ips.slice(0, 6).join("<br/>");
-  const extraIps = entry.ips.length > 6 ? `<br/>+${entry.ips.length - 6} more` : "";
   return `
     <strong>${countries}</strong><br/>
     ${entry.count} peer(s)<br/>
-    ${ips}${extraIps}
-  `;
+    IP addresses hidden
+    `;
 };
 
 async function loadPeerGeo() {
