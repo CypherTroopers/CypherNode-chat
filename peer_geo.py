@@ -1,4 +1,5 @@
 import asyncio
+import ipaddress
 import os
 import time
 from typing import Any, Dict, Iterable, List, Optional
@@ -16,8 +17,22 @@ def _extract_ip(remote_address: Optional[str]) -> Optional[str]:
     if not remote_address or not isinstance(remote_address, str):
         return None
     if remote_address.startswith("[") and "]" in remote_address:
-        return remote_address.split("]")[0].lstrip("[")
-    return remote_address.split(":")[0]
+        candidate = remote_address.split("]")[0].lstrip("[")
+        try:
+            return str(ipaddress.ip_address(candidate))
+        except ValueError:
+            return None
+    try:
+        return str(ipaddress.ip_address(remote_address))
+    except ValueError:
+        pass
+    if ":" in remote_address:
+        host, _port = remote_address.rsplit(":", 1)
+        try:
+            return str(ipaddress.ip_address(host))
+        except ValueError:
+            return None
+    return None
 
 
 def _unique_sorted(items: Iterable[str]) -> List[str]:
