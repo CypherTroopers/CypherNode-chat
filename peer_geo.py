@@ -137,7 +137,7 @@ async def peer_geo_loop(cfg: Dict[str, Any], rpc: CypherRPC) -> None:
 
     output_path = settings.get("output_path", "peer_geo.json")
     interval = float(settings.get("update_interval_sec", 3600))
-        while True:
+    while True:
         try:
             peers = rpc.admin_peers() or []
             payload = _build_peer_geo_payload(peers)
