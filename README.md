@@ -28,6 +28,8 @@ curl -fsSL https://ollama.com/install.sh | sh
 **Start Ollama & pull the model:**
 ```bash
 pm2 start ollama --name ollama -- serve
+pm2 save
+pm2 startup
 ollama pull qwen2.5:3b
 ```
 
