@@ -6,10 +6,10 @@
 If your directory structure is different, please update the paths below:
 
 * In **app.py**, change the path on line 29:
-  `CYPHER_REPO_BASE = "/root/go/src/github.com/cypherium/cypher"`
+  `CYPHER_REPO_BASE = "/root/your/path/cypher"`
 
 * In **config.yaml**, change the path on line 6:
-  `ipc_path: "/root/go/src/github.com/cypherium/cypher/chaindbname/cypher.ipc"`
+  `ipc_path: "/root/your/path/cypher.ipc"`
 
 ### 1) Clone the repo&install tools
 
