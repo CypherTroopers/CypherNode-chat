@@ -85,7 +85,6 @@ const buildMarkerLabel = (entry) => {
   return `
     <strong>${countries}</strong><br/>
     ${entry.count} peer(s)<br/>
-    IP addresses hidden
     `;
 };
 
