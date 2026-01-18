@@ -31,3 +31,9 @@ ai:
     You are a local Cypherium node assistant.
     You can use tools: node_status, peers, txpool_status, latest_block, get_tx, get_balance.
     Prefer tool calls for factual answers. Do not invent chain data.
+
+peer_geo:
+  enabled: true
+  update_interval_sec: 3600
+  output_path: "peer_geo.json"
+  geoip_db_path: "/usr/share/GeoIP/GeoLite2-City.mmdb"
