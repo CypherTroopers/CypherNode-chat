@@ -55,7 +55,7 @@ telegram:
 ### 5) Run the server
 
 ```bash
-pm2 start bash --name chainchat-agent -- -lc "source .venv/bin/activate && uvicorn app:app --host 0.0.0.0 --port 9600"
+pm2 start bash --name CypherNode-chat -- -lc "source .venv/bin/activate && uvicorn app:app --host 0.0.0.0 --port 9600"
 ```
 
 Then open: `http://localhost:9600`
