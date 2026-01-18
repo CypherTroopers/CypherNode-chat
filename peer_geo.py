@@ -62,26 +62,6 @@ def _extract_peer_ips(peers: Any) -> List[str]:
     return _unique_sorted(ips)
 
 
-def _lookup_geo(reader: Optional[Any], ip: str) -> Dict[str, Any]:
-    if reader is None:
-        return {"ip": ip}
-
-    try:
-        record = reader.city(ip)
-    except Exception:
-        return {"ip": ip}
-
-    return {
-        "ip": ip,
-        "country": record.country.name,
-        "country_code": record.country.iso_code,
-        "region": record.subdivisions.most_specific.name,
-        "city": record.city.name,
-        "latitude": record.location.latitude,
-        "longitude": record.location.longitude,
-    }
-
-
 def _ip_api_batch(ips: List[str]) -> Dict[str, Dict[str, Any]]:
     """
     ip-api.com batch: POST JSON array
@@ -135,26 +115,8 @@ def _ip_api_batch(ips: List[str]) -> Dict[str, Dict[str, Any]]:
     return out
 
 
-def _load_geo_reader(db_path: str) -> Optional[Any]:
-    if not db_path or not os.path.exists(db_path) or geoip2 is None:
-        return None
-    try:
-        return geoip2.database.Reader(db_path)
-    except Exception:
-        return None
-
-
-def _build_peer_geo_payload(peers: Any, geo_reader: Optional[Any]) -> Dict[str, Any]:
+def _build_peer_geo_payload(peers: Any) -> Dict[str, Any]:
     ips = _extract_peer_ips(peers)
-
-    if geo_reader is not None:
-        enriched = [_lookup_geo(geo_reader, ip) for ip in ips]
-        return {
-            "updated_at": time.time(),
-            "ip_count": len(ips),
-            "peers": enriched,
-            "geoip_enabled": True,
-        }
 
     batch_map = _ip_api_batch(ips)
     enriched = [batch_map.get(ip, {"ip": ip}) for ip in ips]
@@ -163,7 +125,7 @@ def _build_peer_geo_payload(peers: Any, geo_reader: Optional[Any]) -> Dict[str, 
         "updated_at": time.time(),
         "ip_count": len(ips),
         "peers": enriched,
-        "geoip_enabled": False,
+        "geoip_enabled": True,
         "provider": "ip-api.com/batch",
     }
 
@@ -175,19 +137,10 @@ async def peer_geo_loop(cfg: Dict[str, Any], rpc: CypherRPC) -> None:
 
     output_path = settings.get("output_path", "peer_geo.json")
     interval = float(settings.get("update_interval_sec", 3600))
-    geoip_db_path = settings.get("geoip_db_path", "")
-
-    while True:
+        while True:
         try:
             peers = rpc.admin_peers() or []
-            reader = _load_geo_reader(geoip_db_path)
-
-            if reader is None:
-                payload = _build_peer_geo_payload(peers, None)
-            else:
-                with reader:
-                    payload = _build_peer_geo_payload(peers, reader)
-
+            payload = _build_peer_geo_payload(peers)
             save_json(output_path, payload)
 
         except Exception as exc:
