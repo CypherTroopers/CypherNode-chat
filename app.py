@@ -19,6 +19,7 @@ from storage import load_json, add_watch_address, remove_watch_address
 from telegram_notify import TelegramNotifier
 from watchers import wallet_watch_loop, pm2_log_watch_loop
 from llm import OllamaLLM
+from peer_geo import peer_geo_loop
 
 CONFIG_PATH = "config.yaml"
 WATCHLIST_PATH = "watchlist.json"
@@ -54,6 +55,7 @@ _cfg: Dict[str, Any] = {}
 _rpc: Optional[CypherRPC] = None
 _notifier: Optional[TelegramNotifier] = None
 _llm: Optional[OllamaLLM] = None
+_peer_geo_path: str = "peer_geo.json"
 
 
 # ====== New: make tool result JSON-serializable ======
@@ -246,7 +248,7 @@ def _route(q: str) -> Dict[str, Any]:
 
 @app.on_event("startup")
 async def startup():
-    global _cfg, _rpc, _notifier, _llm
+    global _cfg, _rpc, _notifier, _llm, _peer_geo_path
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         _cfg = yaml.safe_load(f)
 
@@ -269,6 +271,8 @@ async def startup():
 
     asyncio.create_task(wallet_watch_loop(_cfg, _rpc, _notifier, WATCHLIST_PATH, STATE_PATH))
     asyncio.create_task(pm2_log_watch_loop(_cfg, _notifier))
+    _peer_geo_path = _cfg.get("peer_geo", {}).get("output_path", "peer_geo.json")
+    asyncio.create_task(peer_geo_loop(_cfg, _rpc))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -309,6 +313,14 @@ async def watch_del(payload: Dict[str, Any]):
 @app.get("/api/status")
 async def status():
     return _to_jsonable(await _tool_status())
+
+
+@app.get("/api/peer-geo")
+async def peer_geo():
+    return load_json(
+        _peer_geo_path,
+        {"updated_at": None, "ip_count": 0, "peers": [], "geoip_enabled": False},
+    )
 
 
 @app.get("/api/mining-power")
