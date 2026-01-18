@@ -57,6 +57,7 @@ telegram:
   bot_token: "<your_bot_token>"
   chat_id: "<your_chat_id>"
 ```
+** Setting up the Telegram bot token and ID is a bit tedious, so I’ll put together a guide and add it later.
 ### 5) Run the server
 
 ```bash
