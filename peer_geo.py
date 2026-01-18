@@ -1,7 +1,6 @@
 import asyncio
 import ipaddress
 import json
-import os
 import time
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.error import URLError
@@ -9,12 +8,6 @@ from urllib.request import Request, urlopen
 
 from cypher_rpc import CypherRPC
 from storage import save_json
-
-try:
-    import geoip2.database  # type: ignore
-except Exception:  # optional dependency
-    geoip2 = None  # type: ignore
-
 
 IP_API_BATCH_URL = "http://ip-api.com/batch"  # batchはhttp
 IP_API_FIELDS = "status,message,country,countryCode,regionName,city,lat,lon,query"
