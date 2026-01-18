@@ -1,7 +1,10 @@
 import asyncio
 import ipaddress
+import json
 import os
 import time
+from urllib.error import URLError
+from urllib.request import Request, urlopen
 from typing import Any, Dict, Iterable, List, Optional
 
 from cypher_rpc import CypherRPC
@@ -57,8 +60,8 @@ def _extract_peer_ips(peers: Any) -> List[str]:
 
 def _lookup_geo(reader: Any, ip: str) -> Dict[str, Any]:
     if reader is None:
-        return {"ip": ip}
-    try:
+        return _lookup_geo_api(ip)
+        try:
         record = reader.city(ip)
     except Exception:
         return {"ip": ip}
@@ -70,6 +73,31 @@ def _lookup_geo(reader: Any, ip: str) -> Dict[str, Any]:
         "city": record.city.name,
         "latitude": record.location.latitude,
         "longitude": record.location.longitude,
+    }
+
+
+def _lookup_geo_api(ip: str) -> Dict[str, Any]:
+    url = f"https://ipapi.co/{ip}/json/"
+    request = Request(url, headers={"User-Agent": "CypherNode/peer-geo"})
+    try:
+        with urlopen(request, timeout=4) as response:
+            if response.status != 200:
+                return {"ip": ip}
+            payload = json.loads(response.read().decode("utf-8"))
+    except (URLError, ValueError, TimeoutError):
+        return {"ip": ip}
+
+    if not isinstance(payload, dict) or payload.get("error"):
+        return {"ip": ip}
+
+    return {
+        "ip": ip,
+        "country": payload.get("country_name"),
+        "country_code": payload.get("country_code"),
+        "region": payload.get("region"),
+        "city": payload.get("city"),
+        "latitude": payload.get("latitude"),
+        "longitude": payload.get("longitude"),
     }
 
 
