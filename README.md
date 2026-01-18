@@ -55,8 +55,11 @@ telegram:
 ### 5) Run the server
 
 ```bash
-pm2 start bash --name CypherNode-chat -- -lc "source .venv/bin/activate && uvicorn app:app --host 0.0.0.0 --port 9600"
+pm2 start ./.venv/bin/uvicorn \
+  --name CypherNode-chat \
+  --cwd /root/go/src/github.com/cypherium/cypher/CypherNode-chat \
+  --interpreter none \
+  -- app:app --host 0.0.0.0 --port 9600
 ```
 
-Then open: `http://localhost:9600`
-
+Then open: `http://yourIP:9600`
