@@ -11,6 +11,9 @@ If your directory structure is different, please update the paths below:
 * In **config.yaml**, change the path on line 6:
   `ipc_path: "/root/your/path/cypher.ipc"`
 
+* The current setup uses a lightweight model that can just barely run on CPU.
+If you have AI experience, you can customize it for your environment—switch to a different LLM, build a RAG pipeline to speed up search, or if you have a GPU, add LoRA and train your own LoRA to grow it into an AI that fits your style.
+
 ### 1) Clone the repo&install tools
 
 ```bash
