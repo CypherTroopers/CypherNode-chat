@@ -4,6 +4,7 @@ const statusBlock = document.getElementById("status-block");
 const statusPeers = document.getElementById("status-peers");
 const statusSync = document.getElementById("status-sync");
 const statusMiningStatus = document.getElementById("status-mining-status");
+const statusHashrate = document.getElementById("status-hashrate");
 const statusTxPool = document.getElementById("status-txpool");
 const statusRefreshTime = document.getElementById("status-refresh-time");
 
@@ -165,12 +166,14 @@ async function loadStatus() {
     setStatusValue(statusPeers, data.peer_count ?? "--");
     setStatusValue(statusSync, data.syncing ?? "--");
     setStatusValue(statusMiningStatus, data.mining_status ?? "--");
+    setStatusValue(statusHashrate, data.hashrate ?? "--");
     setStatusValue(statusTxPool, data.txpool ?? "--");
     setStatusValue(statusRefreshTime, new Date().toLocaleTimeString());
   } catch (error) {
     statusEl.textContent = `Error: ${error}`;
     setStatusValue(statusConnection, "Offline");
     setStatusValue(statusMiningStatus, "--");
+    setStatusValue(statusHashrate, "--");
     setStatusValue(statusRefreshTime, new Date().toLocaleTimeString());
   }
 }
