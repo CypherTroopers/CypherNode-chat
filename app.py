@@ -199,6 +199,7 @@ async def _tool_status() -> Dict[str, Any]:
         "syncing": _rpc.syncing(),
         "txpool": _rpc.txpool_status(),
         "mining_status": _rpc.miner_status(),
+        "hashrate": _rpc.hashrate(),
     }
 
 
