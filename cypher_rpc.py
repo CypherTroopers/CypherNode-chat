@@ -47,6 +47,12 @@ class CypherRPC:
         except Exception:
             return None
 
+    def hashrate(self) -> Optional[int]:
+        try:
+            return int(self.w3.eth.hashrate)
+        except Exception:
+            return None
+
     def miner_status(self) -> Optional[Any]:
         try:
             return self.w3.manager.request_blocking("miner_status", [])
