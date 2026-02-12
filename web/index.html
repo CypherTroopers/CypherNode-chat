@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CypherNode Chat</title>
+    <style>
+    :root {
+      color-scheme: dark;
+      --bg: #05070f;
+      --panel: rgba(12, 17, 32, 0.85);
+      --panel-strong: rgba(17, 24, 44, 0.96);
+      --accent: #6fffe9;
+      --accent-strong: #3b82f6;
+      --text: #e6edf6;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.2);
+      --glow: rgba(111, 255, 233, 0.3);
+      --warning: #f97316;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top, rgba(61, 130, 246, 0.12), transparent 45%),
+                  radial-gradient(circle at 30% 20%, rgba(111, 255, 233, 0.2), transparent 40%),
+                  var(--bg);
+      color: var(--text);
+      padding: 32px 20px 48px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(111, 255, 233, 0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(111, 255, 233, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(111, 255, 233, 0.1), rgba(59, 130, 246, 0.08));
+      box-shadow: 0 0 35px rgba(59, 130, 246, 0.25);
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 640px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 0 20px rgba(8, 12, 28, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      border: 1px solid rgba(111, 255, 233, 0.12);
+      pointer-events: none;
+    }
+
+        .panel-link {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .panel-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 24px rgba(111, 255, 233, 0.35);
+    }
+
+    .panel-link:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .mining-value {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .mining-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+      .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid rgba(111, 255, 233, 0.35);
+      background: linear-gradient(135deg, rgba(111, 255, 233, 0.12), rgba(59, 130, 246, 0.2));
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 0 16px rgba(111, 255, 233, 0.2);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(111, 255, 233, 0.35);
+    }
+
+    button.secondary {
+      background: rgba(15, 23, 42, 0.6);
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(10, 15, 29, 0.8);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(111, 255, 233, 0.25);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--panel-strong);
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.18);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+
+    .badge.warning {
+      background: rgba(249, 115, 22, 0.2);
+      border-color: rgba(249, 115, 22, 0.45);
+      color: #fed7aa;
+    }
+
+    .watchlist {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 40px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(111, 255, 233, 0.08);
+      border: 1px solid rgba(111, 255, 233, 0.25);
+      font-size: 13px;
+    }
+
+    .pill button {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(59, 130, 246, 0.2);
+      box-shadow: none;
+      font-size: 11px;
+    }
+
+    .output {
+      background: rgba(5, 7, 15, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      color: #cbd5f5;
+      max-height: 180px;
+      overflow: auto;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+ 
+    .map-panel {
+      grid-column: 1 / -1;
+    }
+
+    .map {
+      width: 100%;
+      height: min(420px, 62vh);
+      min-height: 280px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: inset 0 0 18px rgba(8, 12, 28, 0.8);
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, rgba(59, 130, 246, 0.2), rgba(2, 6, 23, 0.92));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .map-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    } 
+
+    .map-theme-toggle {
+      min-width: 132px;
+    }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="eyebrow">AI × Blockchain Control Plane</span>
+      <div class="title">CypherNode Chat</div>
+      <p class="subtitle">
+When you ask a question, the AI scans the entire node to derive an answer.
+You can check the status of your Cypherium node, as well as CPU/GPU usage, even while away.
+By registering your wallet, you can monitor specific addresses and receive Telegram bot notifications when transactions occur.
+The CypherTroopers Map allows you to visualize the distribution of CypherTroopers.
+      </p>
+    </header>
+
+    <main class="grid">
+      <div id="node-status"></div>
+      <div id="wallet-watchlist"></div>
+      <div id="ai-operations-console"></div>
+      <div id="ai-mining-power"></div>
+      <div id="cyphertroopers-map"></div>
+    </main>
+
+    <div class="footer-note">
+      Cypherium telemetry is rendered locally. AI responses reflect real-time node context.
+    </div>
+  </div>
+  <script src="https://unpkg.com/three"></script>
+  <script src="https://unpkg.com/globe.gl"></script>
+  <script type="module" src="/static/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<section class="panel" aria-labelledby="status-title">
+  <div class="panel-header">
+    <div>
+      <div class="panel-title" id="status-title">Node Status</div>
+      <div class="panel-subtitle">Live metrics for chain health and sync.</div>
+    </div>
+    <div class="actions">
+      <button id="status-refresh">Sync Now</button>
+    </div>
+  </div>
+  <div class="status-grid">
+    <div class="stat-card"><span class="stat-label">Connection</span><span class="stat-value" id="status-connection">--</span></div>
+    <div class="stat-card"><span class="stat-label">Block Height</span><span class="stat-value" id="status-block">--</span></div>
+    <div class="stat-card"><span class="stat-label">Peers</span><span class="stat-value" id="status-peers">--</span></div>
+    <div class="stat-card"><span class="stat-label">Sync State</span><span class="stat-value" id="status-sync">--</span></div>
+    <div class="stat-card"><span class="stat-label">Mining Status</span><span class="stat-value" id="status-mining-status">--</span></div>
+    <div class="stat-card"><span class="stat-label">Hashrate</span><span class="stat-value" id="status-hashrate">--</span></div>
+    <div class="stat-card"><span class="stat-label">Tx Pool</span><span class="stat-value" id="status-txpool">--</span></div>
+    <div class="stat-card"><span class="stat-label">Last Refresh</span><span class="stat-value" id="status-refresh-time">--</span></div>
+  </div>
+  <details>
+    <summary class="badge">Raw status payload</summary>
+    <pre class="output" id="status"></pre>
+  </details>
+</section>

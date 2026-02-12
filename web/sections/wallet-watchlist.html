@@ -1,0 +1,21 @@
+<section class="panel" aria-labelledby="watchlist-title">
+  <div class="panel-header">
+    <div>
+      <div class="panel-title" id="watchlist-title">Wallet Watchlist</div>
+      <div class="panel-subtitle">It monitors your wallet 24/7 and notifies you whenever a transaction happens.</div>
+    </div>
+    <div class="badge" id="watchlist-count">0 tracked</div>
+  </div>
+  <div class="watchlist">
+    <input id="addr" placeholder="0x... address to track" />
+    <div class="actions">
+      <button id="watchlist-add">Add Address</button>
+      <button class="secondary" id="watchlist-reload">Reload</button>
+    </div>
+    <div class="pill-list" id="watchlist-list"></div>
+    <details>
+      <summary class="badge">Raw watchlist payload</summary>
+      <pre class="output" id="watchlist"></pre>
+    </details>
+  </div>
+</section>

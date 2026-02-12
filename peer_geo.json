@@ -1,0 +1,161 @@
+{
+  "updated_at": 1770874093.5753164,
+  "ip_count": 17,
+  "peers": [
+    {
+      "ip": "149.102.156.210",
+      "country": "United Kingdom",
+      "country_code": "GB",
+      "region": "England",
+      "city": "Portsmouth",
+      "latitude": 50.8514,
+      "longitude": -0.9903
+    },
+    {
+      "ip": "34.106.166.135",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Utah",
+      "city": "Salt Lake City",
+      "latitude": 40.7607,
+      "longitude": -111.891
+    },
+    {
+      "ip": "34.106.17.184",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Utah",
+      "city": "Salt Lake City",
+      "latitude": 40.7607,
+      "longitude": -111.891
+    },
+    {
+      "ip": "34.106.176.121",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Utah",
+      "city": "Salt Lake City",
+      "latitude": 40.7607,
+      "longitude": -111.891
+    },
+    {
+      "ip": "34.106.251.229",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Utah",
+      "city": "Salt Lake City",
+      "latitude": 40.7607,
+      "longitude": -111.891
+    },
+    {
+      "ip": "34.106.3.238",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Utah",
+      "city": "Salt Lake City",
+      "latitude": 40.7607,
+      "longitude": -111.891
+    },
+    {
+      "ip": "34.106.54.3",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Utah",
+      "city": "Salt Lake City",
+      "latitude": 40.7607,
+      "longitude": -111.891
+    },
+    {
+      "ip": "34.125.2.247",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Nevada",
+      "city": "Las Vegas",
+      "latitude": 36.1699,
+      "longitude": -115.1398
+    },
+    {
+      "ip": "34.139.102.33",
+      "country": "United States",
+      "country_code": "US",
+      "region": "South Carolina",
+      "city": "North Charleston",
+      "latitude": 32.8771,
+      "longitude": -80.013
+    },
+    {
+      "ip": "34.169.211.253",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Oregon",
+      "city": "The Dalles",
+      "latitude": 45.5945,
+      "longitude": -121.1786
+    },
+    {
+      "ip": "34.187.218.32",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Oregon",
+      "city": "The Dalles",
+      "latitude": 45.5945,
+      "longitude": -121.1786
+    },
+    {
+      "ip": "34.26.19.217",
+      "country": "United States",
+      "country_code": "US",
+      "region": "South Carolina",
+      "city": "North Charleston",
+      "latitude": 32.8771,
+      "longitude": -80.013
+    },
+    {
+      "ip": "34.74.146.233",
+      "country": "United States",
+      "country_code": "US",
+      "region": "South Carolina",
+      "city": "North Charleston",
+      "latitude": 32.8771,
+      "longitude": -80.013
+    },
+    {
+      "ip": "34.94.214.48",
+      "country": "United States",
+      "country_code": "US",
+      "region": "California",
+      "city": "Los Angeles",
+      "latitude": 34.0522,
+      "longitude": -118.2436
+    },
+    {
+      "ip": "34.94.248.183",
+      "country": "United States",
+      "country_code": "US",
+      "region": "California",
+      "city": "Los Angeles",
+      "latitude": 34.0522,
+      "longitude": -118.2436
+    },
+    {
+      "ip": "35.185.247.193",
+      "country": "United States",
+      "country_code": "US",
+      "region": "Oregon",
+      "city": "The Dalles",
+      "latitude": 45.5945,
+      "longitude": -121.1786
+    },
+    {
+      "ip": "35.196.227.168",
+      "country": "United States",
+      "country_code": "US",
+      "region": "South Carolina",
+      "city": "North Charleston",
+      "latitude": 32.8771,
+      "longitude": -80.013
+    }
+  ],
+  "geoip_enabled": true,
+  "provider": "ip-api.com/batch"
+}

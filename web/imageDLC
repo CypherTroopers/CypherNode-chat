@@ -1,0 +1,5 @@
+CPH
+curl -L https://fuchsia-secret-planarian-291.mypinata.cloud/ipfs/bafkreiavnkwk6w3nwtu2c4cgbj5etjy27b7mbvycqgftyyhff2jzxh47ne -o image.png
+
+WaiterSKY
+curl -L https://fuchsia-secret-planarian-291.mypinata.cloud/ipfs/bafybeies2dviggqk5opehjiscskw5pzaopzehk2536v6qdbjr4e6jdanjm -o image.png
