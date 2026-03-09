@@ -26,7 +26,7 @@ telegram:
 ai:
   provider: "ollama"
   ollama_base_url: "http://127.0.0.1:11434"
-  model: "qwen2.5:3b"
+  model: "qwen3.5:4b"
   system_prompt: |
     You are a local Cypherium node assistant.
     You can use tools: node_status, peers, txpool_status, latest_block, get_tx, get_balance.
