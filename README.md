@@ -43,7 +43,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 **Start Ollama & pull the model:**
 ```bash
 sudo systemctl enable --now ollama
-ollama pull qwen2.5:3b
+ollama pull qwen3.5:4b
 ```
 
 > If you want a different model, update `config.yaml`:
